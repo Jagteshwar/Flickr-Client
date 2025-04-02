@@ -19,13 +19,22 @@ class SearchViewModel @Inject constructor(
 
     private val _listState = MutableStateFlow<List<Photo>>(emptyList())
     val listState: StateFlow<List<Photo>> = _listState.asStateFlow()
+    var currentTag: String = ""
+    var currentPage: Int = 1
 
 
     fun searchPhotos(tag: String) {
-        val currentTag = tag
-        val currentPage = 1
+        currentTag = tag
+        currentPage = 1
         viewModelScope.launch {
-          _listState.value =  searchPhotosUseCase(currentTag, currentPage)
+          _listState.value =  searchPhotosUseCase(tag, currentPage)
+        }
+    }
+
+    fun loadNext(){
+        currentPage++
+        viewModelScope.launch {
+            _listState.value += searchPhotosUseCase(currentTag, currentPage)
         }
     }
 }
