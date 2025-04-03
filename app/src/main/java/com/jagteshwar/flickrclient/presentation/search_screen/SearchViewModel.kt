@@ -1,6 +1,5 @@
-package com.jagteshwar.flickrclient.presentation
+package com.jagteshwar.flickrclient.presentation.search_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jagteshwar.flickrclient.domain.model.Photo

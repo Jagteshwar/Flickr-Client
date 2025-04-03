@@ -28,4 +28,16 @@ init {
         val photos = photosInterface.search(params, 12, page)
         photos.map { PhotoDto(it.id, it.title, it.mediumUrl.toString()) }
     }
+
+    suspend fun getPhotoDetail(photoId: String): PhotoDetailDto  = withContext(Dispatchers.IO){
+        val photoInfo = photosInterface.getInfo(photoId, null)
+        PhotoDetailDto(
+            id = photoInfo.id,
+            title = photoInfo.title,
+            description = photoInfo.description ?: "",
+            dateTaken = photoInfo.dateTaken.toString(),
+            datePosted = photoInfo.datePosted.toString(),
+            url = photoInfo.largeUrl.toString()
+        )
+    }
 }
