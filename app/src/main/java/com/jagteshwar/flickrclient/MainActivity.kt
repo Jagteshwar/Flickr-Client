@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jagteshwar.flickrclient.presentation.detail_screen.DetailScreen
 import com.jagteshwar.flickrclient.presentation.detail_screen.DetailScreenViewModel
+import com.jagteshwar.flickrclient.presentation.navigation.AppNavigation
 import com.jagteshwar.flickrclient.presentation.search_screen.SearchScreen
 import com.jagteshwar.flickrclient.presentation.search_screen.SearchViewModel
 import com.jagteshwar.flickrclient.ui.theme.FlickrClientTheme
@@ -25,12 +26,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FlickrClientTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {innerPadding->
-                val viewModel: SearchViewModel = hiltViewModel()
-                    val detailViewModel: DetailScreenViewModel = hiltViewModel()
-              //  SearchScreen(modifier = Modifier.padding(innerPadding), viewModel = viewModel)
-                DetailScreen(modifier = Modifier.padding(innerPadding), photoId = "54427107041",viewModel = detailViewModel)
-                }
+              AppNavigation()
             }
         }
     }
