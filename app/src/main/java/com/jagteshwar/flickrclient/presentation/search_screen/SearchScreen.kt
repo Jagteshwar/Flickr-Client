@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -44,7 +47,9 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     val uiState by viewModel.uiState.collectAsState()
     val tagState by viewModel.tagState.collectAsState()
     val lazyListState = rememberLazyGridState()
-
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    val columns = if(isLandscape) GridCells.Fixed(2) else GridCells.Fixed(3)
     LaunchedEffect(lazyListState) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
@@ -57,9 +62,15 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(if(isLandscape) MediumPadding * 2 else MediumPadding)
     ) {
         Row(
-            modifier = Modifier.padding(MediumPadding)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MediumPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+
         ) {
             TextField(
                 value = tagState,
@@ -94,9 +105,10 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                    columns = columns,
                     modifier = Modifier.fillMaxSize(),
-                    state = lazyListState
+                    state = lazyListState,
+                    contentPadding = PaddingValues(SmallPadding)
                 ) {
                     items(uiState.photos.size) { index ->
                         val photo = uiState.photos[index]
@@ -104,8 +116,8 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                             model = photo.url,
                             contentDescription = photo.title,
                             modifier = Modifier
-                                .width(MediumWidth)
-                                .height(MediumHeight)
+                                .width(if(isLandscape) MediumWidth * 0.8f else MediumWidth)
+                                .height(if(isLandscape) MediumHeight * 0.8f else MediumHeight)
                                 .padding(SmallPadding)
                                 .clip(RoundedCornerShape(RoundedCornerShapeMedium))
                                 .clickable { navController.navigate(Screen.DetailScreen.route + "/${photo.id}") },

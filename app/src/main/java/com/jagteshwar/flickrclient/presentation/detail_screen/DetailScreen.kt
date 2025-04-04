@@ -27,9 +27,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -51,81 +53,188 @@ fun DetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val configuration = LocalConfiguration.current
+    val isLandscape =
+        configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
     LaunchedEffect(key1 = photoId) {
         viewModel.getPhotoDetail(photoId)
     }
 
-    when{
-        uiState.isLoading->{
+    when {
+        uiState.isLoading -> {
             CircularProgressIndicator()
         }
-        uiState.error != null->{
+
+        uiState.error != null -> {
             Text(text = uiState.error ?: "Unexpected Error")
         }
-        uiState.photoDetail != null->{
+
+        uiState.photoDetail != null -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(MediumPadding)
-            ){
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(MediumPadding)
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(CardHeight)
-                            .shadow(ElevationMedium, RoundedCornerShape(RoundedCornerShapeLarge)),
-                        shape = RoundedCornerShape(RoundedCornerShapeLarge),
-                        colors = CardDefaults.cardColors(contentColor = Color.White)
+            ) {
+                if (isLandscape) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(MediumPadding)
                     ) {
-                        AsyncImage(
-                            model = uiState.photoDetail?.url,
-                            contentDescription = uiState.photoDetail?.title,
+                        Card(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(RoundedCornerShapeLarge)),
-                            contentScale = ContentScale.Crop,
-                            placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
-                        )
-                    }
-                    Text(
-                        text = uiState.photoDetail?.title ?: "N/A",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = SmallPadding)
-                    )
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .shadow(
+                                    ElevationMedium,
+                                    RoundedCornerShape(RoundedCornerShapeLarge)
+                                ),
+                            shape = RoundedCornerShape(RoundedCornerShapeLarge),
+                            colors = CardDefaults.cardColors(contentColor = Color.White)
+                        ) {
+                            AsyncImage(
+                                model = uiState.photoDetail?.url,
+                                contentDescription = uiState.photoDetail?.title,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(RoundedCornerShapeLarge)),
+                                contentScale = ContentScale.Crop,
+                                placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                            )
+                        }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .shadow(ElevationSmall, RoundedCornerShape(RoundedCornerShapeMedium)),
-                        shape = RoundedCornerShape(RoundedCornerShapeMedium),
-                        colors = CardDefaults.cardColors(contentColor = Color.White)
-                    ) {
                         Column(
                             modifier = Modifier
-                                .padding(MediumPadding)
+                                .weight(1f)
                                 .fillMaxHeight(),
-                            verticalArrangement = Arrangement.spacedBy(SmallPadding)
+                            verticalArrangement = Arrangement.spacedBy(MediumPadding)
                         ) {
-                            DetailRow(label = "Description", value = uiState.photoDetail?.description ?: "N/A")
-                            DetailRow(label = "Date Taken", value = uiState.photoDetail?.dateTaken ?: "N/A")
-                            DetailRow(label = "Date Posted", value = uiState.photoDetail?.datePosted ?: "N/A")
+                            Text(
+                                text = uiState.photoDetail?.title ?: "N/A",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(top = SmallPadding)
+                            )
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                                    .shadow(
+                                        ElevationSmall, RoundedCornerShape(
+                                            RoundedCornerShapeMedium
+                                        )
+                                    ),
+                                shape = RoundedCornerShape(RoundedCornerShapeMedium),
+                                colors = CardDefaults.cardColors(contentColor = Color.White)
+                            ) {
+
+                                Column(
+                                    modifier = Modifier
+                                        .padding(MediumPadding)
+                                        .fillMaxHeight(),
+                                    verticalArrangement = Arrangement.spacedBy(SmallPadding)
+                                ) {
+                                    DetailRow(
+                                        label = "Description",
+                                        value = uiState.photoDetail?.description ?: "N/A"
+                                    )
+                                    DetailRow(
+                                        label = "Date Taken",
+                                        value = uiState.photoDetail?.dateTaken ?: "N/A"
+                                    )
+                                    DetailRow(
+                                        label = "Date Posted",
+                                        value = uiState.photoDetail?.datePosted ?: "N/A"
+                                    )
+
+                                }
+                            }
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { navController.popBackStack() }) {
+                                Text(text = "Back")
+                            }
                         }
                     }
-
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { navController.popBackStack() }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(MediumPadding)
                     ) {
-                        Text(text = "Back")
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(CardHeight)
+                                .shadow(
+                                    ElevationMedium,
+                                    RoundedCornerShape(RoundedCornerShapeLarge)
+                                ),
+                            shape = RoundedCornerShape(RoundedCornerShapeLarge),
+                            colors = CardDefaults.cardColors(contentColor = Color.White)
+                        ) {
+                            AsyncImage(
+                                model = uiState.photoDetail?.url,
+                                contentDescription = uiState.photoDetail?.title,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(RoundedCornerShapeLarge)),
+                                contentScale = ContentScale.Crop,
+                                placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                            )
+                        }
+                        Text(
+                            text = uiState.photoDetail?.title ?: "N/A",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(top = SmallPadding)
+                        )
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .shadow(
+                                    ElevationSmall,
+                                    RoundedCornerShape(RoundedCornerShapeMedium)
+                                ),
+                            shape = RoundedCornerShape(RoundedCornerShapeMedium),
+                            colors = CardDefaults.cardColors(contentColor = Color.White)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(MediumPadding)
+                                    .fillMaxHeight(),
+                                verticalArrangement = Arrangement.spacedBy(SmallPadding)
+                            ) {
+                                DetailRow(
+                                    label = "Description",
+                                    value = uiState.photoDetail?.description ?: "N/A"
+                                )
+                                DetailRow(
+                                    label = "Date Taken",
+                                    value = uiState.photoDetail?.dateTaken ?: "N/A"
+                                )
+                                DetailRow(
+                                    label = "Date Posted",
+                                    value = uiState.photoDetail?.datePosted ?: "N/A"
+                                )
+                            }
+                        }
+
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { navController.popBackStack() }
+                        ) {
+                            Text(text = "Back")
+                        }
                     }
                 }
             }
