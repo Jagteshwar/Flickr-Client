@@ -3,6 +3,7 @@ package com.jagteshwar.flickrclient.presentation.search_screen
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +16,9 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -40,14 +43,14 @@ import com.jagteshwar.flickrclient.presentation.navigation.Screen
 
 @Composable
 fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
-    val photos = viewModel.listState.collectAsState()
-    var tagState = viewModel.tagState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val tagState by viewModel.tagState.collectAsState()
     val lazyListState = rememberLazyGridState()
 
     LaunchedEffect(lazyListState) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
-                if (lastVisibleIndex == photos.value.size - 1) {
+                if (lastVisibleIndex == uiState.photos.size - 1 && uiState.photos.isNotEmpty() && !uiState.isLoading) {
                     viewModel.loadNext()
                 }
             }
@@ -61,53 +64,74 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
             modifier = Modifier.padding(16.dp)
         ) {
             TextField(
-                value = tagState.value,
+                value = tagState,
                 onValueChange = {
                     viewModel.updateTag(it)
                 },
                 modifier = Modifier.weight(1f),
-                label = { Text(text = "Search Here...") }
+                label = { Text(text = "Search Here...") },
+                enabled = !uiState.isLoading
             )
 
-            Button(onClick = { viewModel.searchPhotos(tagState.value) }) {
+            Button(
+                onClick = { viewModel.searchPhotos(tagState) },
+                enabled = !uiState.isLoading
+            ) {
                 Text(text = "Search")
             }
         }
 
-        if (photos.value.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Search a tag.")
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_info_details),
-                    contentDescription = null
-                )
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                state = lazyListState
-            ) {
-                items(photos.value.size) { index ->
-                    val photo = photos.value[index]
-                    AsyncImage(
-                        model = photo.url,
-                        contentDescription = photo.title,
-                        modifier = Modifier
-                            .width(180.dp)
-                            .height(180.dp)
-                            .padding(8.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { navController.navigate(Screen.DetailScreen.route + "/${photo.id}") },
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (uiState.photos.isEmpty() && !uiState.isLoading) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Search a tag.")
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_info_details),
+                        contentDescription = null
                     )
                 }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState
+                ) {
+                    items(uiState.photos.size) { index ->
+                        val photo = uiState.photos[index]
+                        AsyncImage(
+                            model = photo.url,
+                            contentDescription = photo.title,
+                            modifier = Modifier
+                                .width(180.dp)
+                                .height(180.dp)
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { navController.navigate(Screen.DetailScreen.route + "/${photo.id}") },
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                        )
+                    }
 
+                }
+            }
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
+            if (uiState.error != null) {
+                Text(
+                    text = uiState.error ?: "Unknown Error",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
+                )
             }
         }
 

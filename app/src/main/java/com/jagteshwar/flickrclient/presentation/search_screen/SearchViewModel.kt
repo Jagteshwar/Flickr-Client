@@ -12,12 +12,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
+open class SearchViewModel @Inject constructor(
     private val searchPhotosUseCase: SearchPhotosUseCase
 ) : ViewModel() {
 
-    private val _listState = MutableStateFlow<List<Photo>>(emptyList())
-    val listState: StateFlow<List<Photo>> = _listState.asStateFlow()
+    private val _uiState = MutableStateFlow(SearchUiState())
+    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
     private val _tagState = MutableStateFlow("")
     val tagState: StateFlow<String> = _tagState
 
@@ -31,15 +32,30 @@ class SearchViewModel @Inject constructor(
     fun searchPhotos(tag: String) {
         _tagState.value = tag
         currentPage = 1
-        viewModelScope.launch {
-          _listState.value =  searchPhotosUseCase(tag, currentPage)
-        }
+        fetchPhotos(false)
     }
 
     fun loadNext(){
+        if(_uiState.value.isLoading) return
         currentPage++
+        fetchPhotos(true)
+    }
+
+    private fun fetchPhotos(append: Boolean){
         viewModelScope.launch {
-            _listState.value += searchPhotosUseCase(_tagState.value, currentPage)
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try{
+                val newPhotos = searchPhotosUseCase(_tagState.value, currentPage)
+                _uiState.value = SearchUiState(
+                    photos = if(append) _uiState.value.photos + newPhotos else newPhotos,
+                    isLoading = false
+                )
+            }catch (e: Exception){
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Failed to load photos: ${e.message}"
+                )
+            }
         }
     }
 }

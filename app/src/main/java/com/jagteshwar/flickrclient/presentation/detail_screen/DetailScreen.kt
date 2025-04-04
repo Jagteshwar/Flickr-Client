@@ -45,82 +45,85 @@ fun DetailScreen(
     photoId: String,
     viewModel: DetailScreenViewModel = hiltViewModel()
 ) {
-    val photoDetail by viewModel.photoDetail.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(key1 = photoId) {
         viewModel.getPhotoDetail(photoId)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
-        if (photoDetail == null) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .shadow(8.dp, RoundedCornerShape(16.dp)),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(contentColor = Color.White)
+    when{
+        uiState.isLoading->{
+            CircularProgressIndicator()
+        }
+        uiState.error != null->{
+            Text(text = uiState.error ?: "Unexpected Error")
+        }
+        uiState.photoDetail != null->{
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp)
+            ){
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    AsyncImage(
-                        model = photoDetail?.url,
-                        contentDescription = photoDetail?.title,
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
-                    )
-                }
-                Text(
-                    text = photoDetail?.title ?: "N/A",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .shadow(4.dp, RoundedCornerShape(12.dp)),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(contentColor = Color.White)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .shadow(8.dp, RoundedCornerShape(16.dp)),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(contentColor = Color.White)
                     ) {
-                        DetailRow(label = "Description", value = photoDetail?.description ?: "N/A")
-                        DetailRow(label = "Date Taken", value = photoDetail?.dateTaken ?: "N/A")
-                        DetailRow(label = "Date Posted", value = photoDetail?.datePosted ?: "N/A")
+                        AsyncImage(
+                            model = uiState.photoDetail?.url,
+                            contentDescription = uiState.photoDetail?.title,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                        )
+                    }
+                    Text(
+                        text = uiState.photoDetail?.title ?: "N/A",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .shadow(4.dp, RoundedCornerShape(12.dp)),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(contentColor = Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            DetailRow(label = "Description", value = uiState.photoDetail?.description ?: "N/A")
+                            DetailRow(label = "Date Taken", value = uiState.photoDetail?.dateTaken ?: "N/A")
+                            DetailRow(label = "Date Posted", value = uiState.photoDetail?.datePosted ?: "N/A")
+                        }
+                    }
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { navController.popBackStack() }
+                    ) {
+                        Text(text = "Back")
                     }
                 }
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { navController.popBackStack() }
-            ) {
-                Text(text = "Back")
-            }
             }
         }
     }

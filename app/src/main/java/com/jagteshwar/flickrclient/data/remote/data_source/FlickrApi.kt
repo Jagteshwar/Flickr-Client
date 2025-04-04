@@ -2,15 +2,12 @@ package com.jagteshwar.flickrclient.data.remote.data_source
 
 import com.googlecode.flickrjandroid.Flickr
 import com.googlecode.flickrjandroid.REST
-import com.googlecode.flickrjandroid.Transport
 import com.googlecode.flickrjandroid.photos.PhotosInterface
 import com.googlecode.flickrjandroid.photos.SearchParameters
 import com.jagteshwar.flickrclient.data.remote.dto.PhotoDetailDto
 import com.jagteshwar.flickrclient.data.remote.dto.PhotoDto
 import com.jagteshwar.flickrclient.utils.Constants
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 class FlickrApi {

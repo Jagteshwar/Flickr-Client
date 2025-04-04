@@ -8,6 +8,7 @@ import com.jagteshwar.flickrclient.domain.usecases.GetPhotoInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,13 +17,26 @@ class DetailScreenViewModel @Inject constructor(
     private val getPhotoInfoUseCase: GetPhotoInfoUseCase
 ): ViewModel(){
 
-    private val _photoDetail = MutableStateFlow<PhotoDetail?>(null)
-    val photoDetail: StateFlow<PhotoDetail?> = _photoDetail
+    private val _uiState = MutableStateFlow(DetailUiState())
+    val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     fun getPhotoDetail(photoId: String){
     viewModelScope.launch {
-        _photoDetail.value = getPhotoInfoUseCase(photoId)
-        Log.d("Flickr App Detail Screen", photoDetail.value.toString())
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+        try {
+            val photoDetail = getPhotoInfoUseCase(photoId)
+            _uiState.value = _uiState.value.copy(
+                photoDetail = photoDetail,
+                isLoading = false
+            )
+        }catch (e: Exception){
+            _uiState.value = _uiState.value.copy(
+                photoDetail = null,
+                isLoading = false,
+                error = "Failed to load photo detail: ${e.message}"
+            )
+        }
     }
     }
 }

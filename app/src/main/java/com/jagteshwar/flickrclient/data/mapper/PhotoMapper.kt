@@ -11,10 +11,25 @@ fun PhotoDto.toPhoto(): Photo = Photo(
     url = url
 )
 
+fun Photo.toPhotoDto(): PhotoDto = PhotoDto(
+    id = id,
+    title = title,
+    url = url
+)
+
 fun PhotoDetailDto.toPhotoDetail(): PhotoDetail = PhotoDetail(
     id = id,
     title = title,
      description = description,
+    dateTaken = dateTaken,
+    datePosted = datePosted,
+    url = url
+)
+
+fun PhotoDetail.toPhotoDetailDto(): PhotoDetailDto = PhotoDetailDto(
+    id = id,
+    title = title,
+    description = description,
     dateTaken = dateTaken,
     datePosted = datePosted,
     url = url
