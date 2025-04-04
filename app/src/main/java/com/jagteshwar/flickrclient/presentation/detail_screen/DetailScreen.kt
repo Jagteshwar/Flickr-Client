@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -31,13 +30,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.jagteshwar.flickrclient.utils.Constants.CardHeight
+import com.jagteshwar.flickrclient.utils.Constants.ElevationMedium
+import com.jagteshwar.flickrclient.utils.Constants.ElevationSmall
+import com.jagteshwar.flickrclient.utils.Constants.MediumPadding
+import com.jagteshwar.flickrclient.utils.Constants.RoundedCornerShapeLarge
+import com.jagteshwar.flickrclient.utils.Constants.RoundedCornerShapeMedium
+import com.jagteshwar.flickrclient.utils.Constants.SmallPadding
+import com.jagteshwar.flickrclient.utils.Constants.SmallWidth
 
 @Composable
 fun DetailScreen(
@@ -63,18 +67,18 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
+                    .padding(MediumPadding)
             ){
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(MediumPadding)
                 ) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp)
-                            .shadow(8.dp, RoundedCornerShape(16.dp)),
-                        shape = RoundedCornerShape(16.dp),
+                            .height(CardHeight)
+                            .shadow(ElevationMedium, RoundedCornerShape(RoundedCornerShapeLarge)),
+                        shape = RoundedCornerShape(RoundedCornerShapeLarge),
                         colors = CardDefaults.cardColors(contentColor = Color.White)
                     ) {
                         AsyncImage(
@@ -82,7 +86,7 @@ fun DetailScreen(
                             contentDescription = uiState.photoDetail?.title,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clip(RoundedCornerShape(16.dp)),
+                                .clip(RoundedCornerShape(RoundedCornerShapeLarge)),
                             contentScale = ContentScale.Crop,
                             placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
                         )
@@ -94,22 +98,22 @@ fun DetailScreen(
                         color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = SmallPadding)
                     )
 
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .shadow(4.dp, RoundedCornerShape(12.dp)),
-                        shape = RoundedCornerShape(12.dp),
+                            .shadow(ElevationSmall, RoundedCornerShape(RoundedCornerShapeMedium)),
+                        shape = RoundedCornerShape(RoundedCornerShapeMedium),
                         colors = CardDefaults.cardColors(contentColor = Color.White)
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(MediumPadding)
                                 .fillMaxHeight(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(SmallPadding)
                         ) {
                             DetailRow(label = "Description", value = uiState.photoDetail?.description ?: "N/A")
                             DetailRow(label = "Date Taken", value = uiState.photoDetail?.dateTaken ?: "N/A")
@@ -134,7 +138,7 @@ fun DetailRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = SmallPadding),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
@@ -142,7 +146,7 @@ fun DetailRow(label: String, value: String) {
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier.width(SmallWidth)
         )
 
         Text(

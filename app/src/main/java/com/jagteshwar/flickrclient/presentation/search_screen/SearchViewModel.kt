@@ -2,18 +2,19 @@ package com.jagteshwar.flickrclient.presentation.search_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jagteshwar.flickrclient.domain.model.Photo
 import com.jagteshwar.flickrclient.domain.usecases.SearchPhotosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.slf4j.Logger
 import javax.inject.Inject
 
 @HiltViewModel
 open class SearchViewModel @Inject constructor(
-    private val searchPhotosUseCase: SearchPhotosUseCase
+    private val searchPhotosUseCase: SearchPhotosUseCase,
+    private val logger: Logger
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -56,6 +57,7 @@ open class SearchViewModel @Inject constructor(
                     error = "Failed to load photos: ${e.message}"
                 )
             }
+                logger.info("Fetched remote data: ${_uiState.value.photos}")
         }
     }
 }

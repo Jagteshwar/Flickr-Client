@@ -1,5 +1,6 @@
 package com.jagteshwar.flickrclient.di
 
+import android.app.Application
 import com.jagteshwar.flickrclient.data.remote.data_source.FlickrApi
 import com.jagteshwar.flickrclient.data.repository.PhotoRepositoryImpl
 import com.jagteshwar.flickrclient.domain.repository.PhotoRepository
@@ -9,6 +10,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import javax.inject.Singleton
 
 
@@ -32,4 +35,7 @@ object AppModule {
     @Singleton
     fun provideGetPhotoDetailUseCase(photoRepository: PhotoRepository): GetPhotoInfoUseCase = GetPhotoInfoUseCase(photoRepository)
 
+    @Provides
+    @Singleton
+    fun providesLoggerObject(app: Application):Logger = LoggerFactory.getLogger(app::class.java)
 }
