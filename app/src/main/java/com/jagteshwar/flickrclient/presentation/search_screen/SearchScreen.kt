@@ -47,9 +47,11 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     val uiState by viewModel.uiState.collectAsState()
     val tagState by viewModel.tagState.collectAsState()
     val lazyListState = rememberLazyGridState()
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val columns = if(isLandscape) GridCells.Fixed(2) else GridCells.Fixed(3)
+
     LaunchedEffect(lazyListState) {
         snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
@@ -91,7 +93,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            if (uiState.photos.isEmpty() && !uiState.isLoading) {
+            if (tagState.isEmpty() || (uiState.photos.isEmpty() && !uiState.isLoading)) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -103,7 +105,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                         contentDescription = null
                     )
                 }
-            } else {
+            } else if(uiState.photos.isNotEmpty()) {
                 LazyVerticalGrid(
                     columns = columns,
                     modifier = Modifier.fillMaxSize(),

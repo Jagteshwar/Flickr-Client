@@ -8,13 +8,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.slf4j.Logger
 import javax.inject.Inject
 
 @HiltViewModel
 open class SearchViewModel @Inject constructor(
     private val searchPhotosUseCase: SearchPhotosUseCase,
-    private val logger: Logger
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -57,7 +55,6 @@ open class SearchViewModel @Inject constructor(
                     error = "Failed to load photos: ${e.message}"
                 )
             }
-                logger.info("Fetched remote data: ${_uiState.value.photos}")
         }
     }
 }

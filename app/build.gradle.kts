@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.android.compiler)
@@ -76,6 +77,7 @@ dependencies {
     androidTestImplementation(libs.mockito.android)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.navigation.testing)
 
     implementation(libs.flickrj.android)
     implementation(files("libs/slf4j-android-1.6.1-RC1.jar"))

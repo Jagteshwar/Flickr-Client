@@ -35,7 +35,4 @@ object AppModule {
     @Singleton
     fun provideGetPhotoDetailUseCase(photoRepository: PhotoRepository): GetPhotoInfoUseCase = GetPhotoInfoUseCase(photoRepository)
 
-    @Provides
-    @Singleton
-    fun providesLoggerObject(app: Application):Logger = LoggerFactory.getLogger(app::class.java)
 }
